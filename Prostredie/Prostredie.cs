@@ -10,9 +10,6 @@ namespace QMazeExample
         public EnvItem[][] prostredie { get; private set; }
         Random r = new Random((int)DateTime.Now.Ticks);
         
-        public int pocetJablk { get; private set; } = 0;
-        public int pocetMin { get; private set; } = 0;
-    
         public Prostredie(int[][] prostredie)
         {            
             this.prostredie = new EnvItem[prostredie.Length][];
@@ -22,15 +19,9 @@ namespace QMazeExample
                 for (int x = 0; x < prostredie[y].Length; x++)
                 {
                     if (prostredie[y][x] == Jablko.Tag)
-                    {
                         this.prostredie[y][x] = new Jablko();
-                        pocetJablk++;
-                    }
                     else if (prostredie[y][x] == Mina.Tag)
-                    {
                         this.prostredie[y][x] = new Mina();
-                        pocetMin++;
-                    }
                     else if (prostredie[y][x] == Cesta.Tag)
                         this.prostredie[y][x] = new Cesta();
                     else if (prostredie[y][x] == Priepast.Tag)
@@ -45,24 +36,24 @@ namespace QMazeExample
         {
             int x, y;
 
-            if (prostredie[4][5].id == Cesta.Tag && item.id == Mina.Tag)
+            /*if (prostredie[4][5].id == Cesta.Tag)
             {
                 x = 5;
                 y = 4;
             }
-            else
+            else if (prostredie[2][9].id == Cesta.Tag)
+            {
+                x = 9;
+                y = 2;
+            }
+            else*/
                 do {
-                    x = r.Next(0, Width);
-                    y = r.Next(0, Height);
+                    x = r.Next(1, Width-1);
+                    y = r.Next(1, Height-1);
                 } while (prostredie[y][x].id != Cesta.Tag);
 
             // prepis novou polozkou sveta
             prostredie[y][x] = item;
-
-            if (item.id == Jablko.Tag)
-                pocetJablk++;
-            else if (item.id == Mina.Tag)
-                pocetMin++;
         }
 
         public float Hodnotenie(int x, int y)
@@ -81,6 +72,14 @@ namespace QMazeExample
             return 0;    
         }
 
+        public void NahradObjekty(int tag, EnvItem item)
+        {
+            for (int y = 0; y < prostredie.Length; y++)
+                for (int x = 0; x < prostredie[y].Length; x++)
+                    if (prostredie[y][x].id == tag)
+                        prostredie[y][x] = item;
+        }
+    
         public void Vypis(int agentX, int agentY)
         {
             Console.WriteLine(new String('-', prostredie[0].Length * 4 + 1));
@@ -92,16 +91,12 @@ namespace QMazeExample
                     {
                         // Agent zobral jablko
                         if (prostredie[y][x].id == Jablko.Tag)
-                        {
                             prostredie[y][x] = new Cesta();
-                            pocetJablk--;
-                        }
-                        
+                                                
                         // Agent aktivoval minu
                         if (prostredie[y][x].id == Mina.Tag)
                         {
                             prostredie[y][x] = new Cesta();
-                            pocetMin--;
                         }
 
                         // Vykresli agenta

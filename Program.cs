@@ -17,9 +17,9 @@ namespace QMazeExample
             { 
                 new int[] { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
                 new int[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 2 },
-                new int[] { 0, 1, 0, 0, 1, 1, 0, 0, 0, 1 },
-                new int[] { 0, 2, 0, 0, 0, 1, 2, 0, 0, 1 },
-                new int[] { 0, 0, 0, 1, 0, 3, 0, 0, 0, 1 },
+                new int[] { 0, 1, 0, 0, 1, 1, 0, 1, 0, 0 },
+                new int[] { 0, 2, 0, 0, 0, 1, 2, 1, 0, 0 },
+                new int[] { 0, 0, 0, 1, 0, 3, 0, 1, 0, 0 },
                 new int[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
                 new int[] { 0, 1, 0, 0, 0, 1, 0, 0, 1, 0 },
                 new int[] { 0, 3, 1, 1, 1, 1, 0, 0, 1, 0 },
@@ -28,7 +28,7 @@ namespace QMazeExample
             });
 
             // Trening agenta
-            for (int time = 0; time < 10000; time++)
+            for (int time = 0; time < 1000; time++)
             {
                 // Test agenta
                 a1.currentPositionX = startPositionX; 
@@ -38,12 +38,16 @@ namespace QMazeExample
                 while (a1.currentPositionY != 9 || a1.currentPositionX != 8)
                 {
                     // Mnou dany cas obnovovania jablcok a min
-                    if ((runningTime % 200) == 0)   // 200 * 15ms = ±3s
+                    if ((runningTime % 500) == 0)   // 500 * 10ms = ±5s
                     {
-                        if (env1.pocetJablk < 4)
+                        // Vymaz vsetky jablka a miny
+                        env1.NahradObjekty(Jablko.Tag, new Cesta());
+                        env1.NahradObjekty(Mina.Tag, new Cesta());
+
+                        for (int i = 0; i < 4; i++)
                             env1.GenerateItem(new Jablko());
         
-                        if (env1.pocetMin < 3)
+                        for (int i = 0; i < 3; i++)
                             env1.GenerateItem(new Mina());
                     }
 
@@ -53,12 +57,12 @@ namespace QMazeExample
 
                     a1.AktualizujAgenta(env1, true);
 
-                    Console.WriteLine($"\nTime epoch: {time}/500, runningTime: {runningTime}");
+                    Console.WriteLine($"\nTime epoch: {time}/1000, runningTime: {runningTime}");
                     Console.WriteLine($"Pocet naucenych stavov: {a1.PocetUlozenychStavov}\n");
 
                     runningTime++;
 
-                    Thread.Sleep(15);
+                    Thread.Sleep(10);   // ±100 FPS
                 }
             }
 
@@ -72,12 +76,16 @@ namespace QMazeExample
                 while (a1.currentPositionY != 9 || a1.currentPositionX != 8)
                 {
                     // Mnou dany cas obnovovania jablcok a min
-                    if ((runningTime % 30) == 0)   // 30 * 100ms = ±3s
+                    if ((runningTime % 50) == 0)   // 50 * 100ms = ±5s
                     {
-                        if (env1.pocetJablk < 4)
+                        // Vymaz vsetky jablka a miny
+                        env1.NahradObjekty(Jablko.Tag, new Cesta());
+                        env1.NahradObjekty(Mina.Tag, new Cesta());
+
+                        for (int i = 0; i < 4; i++)
                             env1.GenerateItem(new Jablko());
         
-                        if (env1.pocetMin < 3)
+                        for (int i = 0; i < 3; i++)
                             env1.GenerateItem(new Mina());
                     }
 
