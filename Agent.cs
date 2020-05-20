@@ -27,7 +27,7 @@ namespace QMazeExample
 
         AI.QLearning.Qlearning qBrain = new AI.QLearning.Qlearning();
 
-        public void AktualizujAgenta(Prostredie env, bool ucenie)
+        public float AktualizujAgenta(Prostredie env, bool ucenie)
         {
             var stav = new AI.QLearning.QState 
             { 
@@ -65,6 +65,7 @@ namespace QMazeExample
             Console.WriteLine($"Akcia: {((EAkcie)akcia).ToString()}, {akcia}");
             Console.WriteLine();
 
+            var odmena = env.Hodnotenie(currentPositionX, currentPositionY);
             if (ucenie)
             {
                 /****************************************************/
@@ -77,7 +78,6 @@ namespace QMazeExample
                     stateRadar = Radar(env)
                 };                
                 var buducaAkcia = qBrain.NajdiMaxAkciu(novyStav);
-                var odmena = env.Hodnotenie(currentPositionX, currentPositionY);
                 var buducaQhodnota = 0f;
 
                 Console.WriteLine($"Odmena: {odmena}");
@@ -92,6 +92,8 @@ namespace QMazeExample
 
                 qBrain.Aktualizuj(stav, akcia.Value, odmena, buducaQhodnota);             
             }
+            
+            return odmena;
         }
 
         private int[] Radar(Prostredie env)

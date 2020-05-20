@@ -13,8 +13,8 @@ namespace AI.QLearning
 
         public override string ToString()
         {
-            return $"Position: X:{PositionX}, Y:{PositionY}\n" +
-                   $"      Radar: {stateRadar[0]},{stateRadar[1]},{stateRadar[2]},{stateRadar[3]},{stateRadar[4]},{stateRadar[5]},{stateRadar[6]},{stateRadar[7]}";
+            return $"{PositionX},{PositionY}\n" +
+                   $"{stateRadar[0]},{stateRadar[1]},{stateRadar[2]},{stateRadar[3]},{stateRadar[4]},{stateRadar[5]},{stateRadar[6]},{stateRadar[7]}";
         }
 
         public override int GetHashCode()
