@@ -27,72 +27,82 @@ namespace QMazeExample
 
         AI.QLearning.Qlearning qBrain = new AI.QLearning.Qlearning();
 
-        public float AktualizujAgenta(Prostredie env, bool ucenie)
-        {
-            var stav = new AI.QLearning.QState 
-            { 
-                PositionX = currentPositionX, 
-                PositionY = currentPositionY,
-                stateRadar = Radar(env)
-            };
-            var akcia = qBrain.NajdiMaxAkciu(stav);
+        public AI.QLearning.QState stav = null;
 
+        public float AktualizujAgenta(Prostredie env, bool ucenie, double eps)
+        {
+            int akcia;
+
+            // Vyber akciu
+            var akcia_max = qBrain.NajdiMaxAkciu(stav);
+            
             /****************************************************/
             /*                 Agent vykona akciu               */
             /****************************************************/
             // Ak existuje vedomost
-            if (akcia != null)
+            if (akcia_max != null)
             {         
                 // explore
-                if (ucenie && r.NextDouble() < 0.2f)
+                if (ucenie && r.NextDouble() < eps)
+                    sample(out akcia);
+                else
                 {
-                    akcia = r.Next(0, 4);
-                }   
-                Pohyb((EAkcie)akcia.Value, 10, 10);                
-
-                Console.WriteLine($"Qvalue[{akcia.Value}]: {qBrain.Qtable[stav][akcia.Value]}");
+                    akcia = akcia_max.Value;
+                    Pohyb((EAkcie)akcia, 10, 10);
+                }
+                //Console.WriteLine($"Qvalue[{akcia.Value}]: {qBrain.Qtable[stav][akcia.Value]}");
             }
             // Ak neexistuje este vedomost
             else
             {   
-                akcia = r.Next(0, 4);
-                Pohyb((EAkcie)akcia.Value, 10, 10);
-
+                sample(out akcia);
                 // ... vytvor zaznam o najdenom stave
                 qBrain.Qtable.Add(stav, new float[] {0f,0f,0f,0f});
             }            
-            Console.WriteLine($"Stav: {stav}");
-            Console.WriteLine($"Akcia: {((EAkcie)akcia).ToString()}, {akcia}");
-            Console.WriteLine();
+            //Console.WriteLine($"Stav: {stav}");
+            //Console.WriteLine($"Akcia: {((EAkcie)akcia).ToString()}, {akcia}");
+            //Console.WriteLine();
 
             var odmena = env.Hodnotenie(currentPositionX, currentPositionY);
+            
+            /****************************************************/
+            /*                      Feedback                    */
+            /****************************************************/
+            var novyStav = new AI.QLearning.QState 
+            { 
+                PositionX = currentPositionX,
+                PositionY = currentPositionY,
+                stateRadar = Radar(env)
+            };
+
             if (ucenie)
             {
-                /****************************************************/
-                /*                      Feedback                    */
-                /****************************************************/
-                var novyStav = new AI.QLearning.QState 
-                { 
-                    PositionX = currentPositionX, 
-                    PositionY = currentPositionY,
-                    stateRadar = Radar(env)
-                };                
                 var buducaAkcia = qBrain.NajdiMaxAkciu(novyStav);
                 var buducaQhodnota = 0f;
 
-                Console.WriteLine($"Odmena: {odmena}");
-                Console.WriteLine($"novyStav: {novyStav}");
+                //Console.WriteLine($"Odmena: {odmena}");
+                //Console.WriteLine($"novyStav: {novyStav}");
 
                 // Aktualizuj Qtable hodnotu pre [s;a]
                 if (buducaAkcia != null)
                 {           
                     buducaQhodnota = qBrain.Qtable[novyStav][buducaAkcia.Value];
-                    Console.WriteLine($"buducaQvalue[{buducaAkcia}]: {buducaQhodnota}");
+                    //Console.WriteLine($"buducaQvalue[{buducaAkcia}]: {buducaQhodnota}");
                 }
 
-                qBrain.Aktualizuj(stav, akcia.Value, odmena, buducaQhodnota);             
+                qBrain.Aktualizuj(stav, akcia, odmena, buducaQhodnota);             
             }
+
+            this.stav = novyStav;
             
+            // Agent zobral jablko
+            if (env.prostredie[currentPositionY][currentPositionX].id == Jablko.Tag)
+                env.prostredie[currentPositionY][currentPositionX] = new Cesta();
+                                                
+            // Agent aktivoval minu
+            if (env.prostredie[currentPositionY][currentPositionX].id == Mina.Tag)
+                env.prostredie[currentPositionY][currentPositionX] = new Cesta();
+        
             return odmena;
         }
 
@@ -163,7 +173,7 @@ namespace QMazeExample
             if (JeMimoAreny(currentPositionX, currentPositionY, 10, 10))
             {
                 currentPositionX = oldX;
-                currentPositionY = oldY;                
+                currentPositionY = oldY;   
             }
         }
 
@@ -173,6 +183,26 @@ namespace QMazeExample
                 return false;
 
             return true;
+        }
+
+        public void reset(Prostredie env)
+        {
+            // Test agenta
+            this.currentPositionX = Prostredie.startPositionX; 
+            this.currentPositionY = Prostredie.startPositionY;
+
+            stav = new AI.QLearning.QState 
+            { 
+                PositionX = currentPositionX,
+                PositionY = currentPositionY,
+                stateRadar = Radar(env)
+            };
+        }
+
+        public void sample(out int akcia)
+        {
+            akcia = r.Next(0, 4);
+            Pohyb((EAkcie)akcia, 10, 10);
         }
     }
 }

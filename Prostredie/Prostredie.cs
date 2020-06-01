@@ -5,6 +5,9 @@ namespace QMazeExample
 { 
     public class Prostredie
     {
+        public static readonly int startPositionX = 0;  // Zacina v bode [0,1]
+        public static readonly int startPositionY = 1;  // Zacina v bode [0,1]
+
         public int Height { get { return prostredie.Length; } }
         public int Width { get { return prostredie[0].Length; } }
         public EnvItem[][] prostredie { get; private set; }
@@ -59,17 +62,15 @@ namespace QMazeExample
         public float Hodnotenie(int x, int y)
         {
             if (prostredie[y][x].id == Priepast.Tag)
-                return -100f;    // Smrt
-            else if (prostredie[y][x].id == Cesta.Tag)
-                return -0.01f;   // Najkratsia cesta k vychodu
+                return -1.00f;    // Smrt
             else if (prostredie[y][x].id == Jablko.Tag)
-                return +10f;     // Jablcko (odmena)
+                return +0.10f;     // Jablcko (odmena)
             else if (prostredie[y][x].id == Mina.Tag)
-                return -10f;     // Mina (trest)
+                return -0.30f;     // Mina (trest)
             else if (prostredie[y][x].id == Vychod.Tag)
-                return +100f;    // Dalsi level      
-
-            return 0;    
+                return +1.0f;    // Dalsi level      
+            else
+                return -0.04f;   // Najkratsia cesta k vychodu
         }
 
         public void NahradObjekty(int tag, EnvItem item)
@@ -89,22 +90,12 @@ namespace QMazeExample
                 {
                     if (agentX == x && agentY == y)
                     {
-                        // Agent zobral jablko
-                        if (prostredie[y][x].id == Jablko.Tag)
-                            prostredie[y][x] = new Cesta();
-                                                
-                        // Agent aktivoval minu
-                        if (prostredie[y][x].id == Mina.Tag)
-                        {
-                            prostredie[y][x] = new Cesta();
-                        }
-
                         // Vykresli agenta
                         Console.Write("|");
                         Console.BackgroundColor = ConsoleColor.Yellow;
                         Console.ForegroundColor = ConsoleColor.Black;                        
                         Console.Write(" A ");
-                        Console.ResetColor();                        
+                        Console.ResetColor();
                         continue;                        
                     }
                                                  
