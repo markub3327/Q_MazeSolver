@@ -24,6 +24,8 @@ namespace AI.QLearning
         public override bool Equals(object obj)
         {
             var y = obj as QState;
+            
+            if (y == null)  return false;
 
             // Poloha agentov sa nezhoduje
             if ((this.PositionX != y.PositionX) || (this.PositionY != y.PositionY))

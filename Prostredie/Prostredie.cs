@@ -62,13 +62,13 @@ namespace QMazeExample
         public float Hodnotenie(int x, int y)
         {
             if (prostredie[y][x].id == Priepast.Tag)
-                return -1.00f;    // Smrt
+                return -100.00f;    // Smrt
             else if (prostredie[y][x].id == Jablko.Tag)
                 return +0.10f;     // Jablcko (odmena)
             else if (prostredie[y][x].id == Mina.Tag)
-                return -0.30f;     // Mina (trest)
+                return -0.50f;     // Mina (trest)
             else if (prostredie[y][x].id == Vychod.Tag)
-                return +1.0f;    // Dalsi level      
+                return +100.0f;    // Dalsi level      
             else
                 return -0.04f;   // Najkratsia cesta k vychodu
         }

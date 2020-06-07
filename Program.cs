@@ -17,14 +17,14 @@ namespace QMazeExample
             Prostredie env1 = new Prostredie(new int[][] 
             { 
                 new int[] { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
-                new int[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 2 },
+                new int[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
                 new int[] { 0, 1, 0, 0, 1, 1, 0, 1, 0, 0 },
-                new int[] { 0, 2, 0, 0, 0, 1, 2, 1, 0, 0 },
-                new int[] { 0, 0, 0, 1, 0, 3, 0, 1, 0, 0 },
+                new int[] { 0, 1, 0, 0, 0, 1, 1, 1, 0, 0 },
+                new int[] { 0, 0, 0, 1, 0, 1, 0, 1, 0, 0 },
                 new int[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
                 new int[] { 0, 1, 0, 0, 0, 1, 0, 0, 1, 0 },
-                new int[] { 0, 3, 1, 1, 1, 1, 0, 0, 1, 0 },
-                new int[] { 0, 1, 0, 2, 0, 1, 0, 0, 1, 0 },
+                new int[] { 0, 1, 1, 1, 1, 1, 0, 0, 1, 0 },
+                new int[] { 0, 1, 0, 1, 0, 1, 0, 0, 1, 0 },
                 new int[] { 0, 1, 0, 0, 0, 1, 0, 0, 4, 0 },
             });
 
@@ -42,7 +42,7 @@ namespace QMazeExample
                     env1.GenerateItem(new Mina());
 
                 float score = 0;
-                for (int runningTime = 0; runningTime < 100; runningTime++)
+                for (int runningTime = 0; runningTime < 50; runningTime++)
                 {
                     //Console.Clear();
 
@@ -64,7 +64,7 @@ namespace QMazeExample
                 }
 
                 if (epsilon >= 0.01f)
-                    epsilon *= 0.9999f;
+                    epsilon *= 0.999995f;
 
                 if (time % 1000 == 0)
                 {
@@ -93,7 +93,7 @@ namespace QMazeExample
                     env1.GenerateItem(new Mina());
 
                 float score = 0;
-                for (int runningTime = 0; runningTime < 100; runningTime++)
+                for (int runningTime = 0; runningTime < 50; runningTime++)
                 {
                     Console.Clear();
 
