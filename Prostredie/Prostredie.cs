@@ -5,8 +5,8 @@ namespace QMazeExample
 { 
     public class Prostredie
     {
-        public static readonly int startPositionX = 0;  // Zacina v bode [0,1]
-        public static readonly int startPositionY = 1;  // Zacina v bode [0,1]
+        public static readonly int[] startPositionX = { 0, 9, 0 };  // Zacina v bode [0,1]
+        public static readonly int[] startPositionY = { 1, 1, 5 };   // Zacina v bode [0,1]
 
         public int Height { get { return prostredie.Length; } }
         public int Width { get { return prostredie[0].Length; } }
@@ -62,13 +62,13 @@ namespace QMazeExample
         public float Hodnotenie(int x, int y)
         {
             if (prostredie[y][x].id == Priepast.Tag)
-                return -100.00f;    // Smrt
+                return -0.75f;    // Smrt
             else if (prostredie[y][x].id == Jablko.Tag)
                 return +0.10f;     // Jablcko (odmena)
             else if (prostredie[y][x].id == Mina.Tag)
-                return -0.50f;     // Mina (trest)
+                return -0.15f;     // Mina (trest)
             else if (prostredie[y][x].id == Vychod.Tag)
-                return +100.0f;    // Dalsi level      
+                return +1.0f;    // Dalsi level      
             else
                 return -0.04f;   // Najkratsia cesta k vychodu
         }

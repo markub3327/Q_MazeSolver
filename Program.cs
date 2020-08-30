@@ -14,18 +14,20 @@ namespace QMazeExample
             System.IO.StreamWriter file_train = new System.IO.StreamWriter(@"score_train.txt");
             System.IO.StreamWriter file_test = new System.IO.StreamWriter(@"score_test.txt");
 
+            Random r = new Random((int)DateTime.Now.Ticks);
+
             Prostredie env1 = new Prostredie(new int[][] 
             { 
                 new int[] { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
                 new int[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-                new int[] { 0, 1, 0, 0, 1, 1, 0, 1, 0, 0 },
-                new int[] { 0, 1, 0, 0, 0, 1, 1, 1, 0, 0 },
-                new int[] { 0, 0, 0, 1, 0, 1, 0, 1, 0, 0 },
+                new int[] { 0, 1, 0, 0, 0, 1, 0, 1, 0, 1 },
+                new int[] { 0, 0, 0, 0, 0, 1, 1, 1, 0, 0 },
+                new int[] { 1, 0, 0, 1, 0, 1, 0, 1, 0, 1 },
                 new int[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
                 new int[] { 0, 1, 0, 0, 0, 1, 0, 0, 1, 0 },
                 new int[] { 0, 1, 1, 1, 1, 1, 0, 0, 1, 0 },
                 new int[] { 0, 1, 0, 1, 0, 1, 0, 0, 1, 0 },
-                new int[] { 0, 1, 0, 0, 0, 1, 0, 0, 4, 0 },
+                new int[] { 0, 1, 1, 1, 0, 1, 0, 0, 4, 0 },
             });
 
             var epsilon = 1.0f;
@@ -35,14 +37,14 @@ namespace QMazeExample
             {
                 a1.reset(env1);
 
-                for (int i = 0; i < 4; i++)
+                for (int i = 0; i <= r.Next(0,5); i++)
                     env1.GenerateItem(new Jablko());
         
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i <= r.Next(0,5); i++)
                     env1.GenerateItem(new Mina());
 
                 float score = 0;
-                for (int runningTime = 0; runningTime < 50; runningTime++)
+                for (int runningTime = 0; runningTime < 100; runningTime++)
                 {
                     //Console.Clear();
 
@@ -56,8 +58,6 @@ namespace QMazeExample
 
                     // ukonci hru ak nasiel ciel
                     if (env1.prostredie[a1.currentPositionY][a1.currentPositionX].id == Vychod.Tag)
-                        break;
-                    else if (env1.prostredie[a1.currentPositionY][a1.currentPositionX].id == Priepast.Tag)
                         break;
 
                     //Thread.Sleep(10);   // ±100 FPS
@@ -86,14 +86,14 @@ namespace QMazeExample
             {
                 a1.reset(env1);
 
-                for (int i = 0; i < 4; i++)
+                for (int i = 0; i <= r.Next(0,5); i++)
                     env1.GenerateItem(new Jablko());
         
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i <= r.Next(0,5); i++)
                     env1.GenerateItem(new Mina());
 
                 float score = 0;
-                for (int runningTime = 0; runningTime < 50; runningTime++)
+                for (int runningTime = 0; runningTime < 100; runningTime++)
                 {
                     Console.Clear();
 
@@ -108,8 +108,6 @@ namespace QMazeExample
 
                     // ukonci hru ak nasiel ciel
                     if (env1.prostredie[a1.currentPositionY][a1.currentPositionX].id == Vychod.Tag)
-                        break;
-                    else if (env1.prostredie[a1.currentPositionY][a1.currentPositionX].id == Priepast.Tag)
                         break;
 
                     Thread.Sleep(100);

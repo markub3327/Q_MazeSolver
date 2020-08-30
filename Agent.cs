@@ -31,7 +31,9 @@ namespace QMazeExample
 
         public float AktualizujAgenta(Prostredie env, bool ucenie, double eps)
         {
+            bool isValid;
             int akcia;
+            float odmena;
 
             // Vyber akciu
             var akcia_max = qBrain.NajdiMaxAkciu(stav);
@@ -44,18 +46,18 @@ namespace QMazeExample
             {         
                 // explore
                 if (ucenie && r.NextDouble() < eps)
-                    sample(out akcia);
+                   isValid = sample(out akcia);
                 else
                 {
                     akcia = akcia_max.Value;
-                    Pohyb((EAkcie)akcia, 10, 10);
+                    isValid = Pohyb((EAkcie)akcia, 10, 10);
                 }
                 //Console.WriteLine($"Qvalue[{akcia.Value}]: {qBrain.Qtable[stav][akcia.Value]}");
             }
             // Ak neexistuje este vedomost
             else
             {   
-                sample(out akcia);
+                isValid = sample(out akcia);
                 // ... vytvor zaznam o najdenom stave
                 qBrain.Qtable.Add(stav, new float[] {0f,0f,0f,0f});
             }            
@@ -63,8 +65,11 @@ namespace QMazeExample
             //Console.WriteLine($"Akcia: {((EAkcie)akcia).ToString()}, {akcia}");
             //Console.WriteLine();
 
-            var odmena = env.Hodnotenie(currentPositionX, currentPositionY);
-            
+            if (isValid)
+                odmena = env.Hodnotenie(currentPositionX, currentPositionY);
+            else
+                odmena = -1.0f;
+
             /****************************************************/
             /*                      Feedback                    */
             /****************************************************/
@@ -145,7 +150,7 @@ namespace QMazeExample
             return scan;
         }
 
-        private void Pohyb(EAkcie akcia, int maxW, int maxH)
+        private bool Pohyb(EAkcie akcia, int maxW, int maxH)
         {
             var oldX = currentPositionX;
             var oldY = currentPositionY;
@@ -174,7 +179,11 @@ namespace QMazeExample
             {
                 currentPositionX = oldX;
                 currentPositionY = oldY;   
+
+                return false;
             }
+
+            return true;
         }
 
         private bool JeMimoAreny(int x, int y, int sirka, int vyska)
@@ -188,8 +197,9 @@ namespace QMazeExample
         public void reset(Prostredie env)
         {
             // Test agenta
-            this.currentPositionX = Prostredie.startPositionX; 
-            this.currentPositionY = Prostredie.startPositionY;
+            var idx = r.Next(0, 3);
+            this.currentPositionX = Prostredie.startPositionX[idx]; 
+            this.currentPositionY = Prostredie.startPositionY[idx];
 
             stav = new AI.QLearning.QState 
             { 
@@ -199,10 +209,10 @@ namespace QMazeExample
             };
         }
 
-        public void sample(out int akcia)
+        public bool sample(out int akcia)
         {
             akcia = r.Next(0, 4);
-            Pohyb((EAkcie)akcia, 10, 10);
+            return Pohyb((EAkcie)akcia, 10, 10);
         }
     }
 }
