@@ -6,128 +6,93 @@ namespace QMazeExample
 {
     class Program
     {
-        public static readonly int time_max       = 1000000;
+        private static System.IO.StreamWriter log_file = new System.IO.StreamWriter(@"statistics.txt");
 
         public static void Main()
         {
-            Agent a1 = new Agent();
-            System.IO.StreamWriter file_train = new System.IO.StreamWriter(@"score_train.txt");
-            System.IO.StreamWriter file_test = new System.IO.StreamWriter(@"score_test.txt");
-
-            Random r = new Random((int)DateTime.Now.Ticks);
-
             Prostredie env1 = new Prostredie(new int[][] 
             { 
                 new int[] { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
                 new int[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
                 new int[] { 0, 1, 0, 0, 0, 1, 0, 1, 0, 1 },
-                new int[] { 0, 0, 0, 0, 0, 1, 1, 1, 0, 0 },
+                new int[] { 0, 0, 0, 1, 1, 1, 1, 1, 0, 0 },
                 new int[] { 1, 0, 0, 1, 0, 1, 0, 1, 0, 1 },
                 new int[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-                new int[] { 0, 1, 0, 0, 0, 1, 0, 0, 1, 0 },
-                new int[] { 0, 1, 1, 1, 1, 1, 0, 0, 1, 0 },
                 new int[] { 0, 1, 0, 1, 0, 1, 0, 0, 1, 0 },
-                new int[] { 0, 1, 1, 1, 0, 1, 0, 0, 4, 0 },
+                new int[] { 0, 1, 1, 1, 1, 1, 0, 0, 1, 0 },
+                new int[] { 0, 1, 0, 1, 0, 1, 1, 0, 1, 0 },
+                new int[] { 0, 1, 1, 1, 0, 1, 0, 0, 4, 0 }
             });
 
-            var epsilon = 1.0f;
+            Agent a1 = new Agent();
+
+            // Faze ucenia
+            run(env1, a1, 1000000, training: true);
+
+            // Faze testovania
+            run(env1, a1, 1000, training: false);
+
+            log_file.Close();
+        }
+
+        private static void run(Prostredie env, Agent a, int episodes=1000, int steps=100, bool training=true)
+        {
+            var epsilon = training == true ? 1.0f : 0.0f;
+            float score;
+            int is_end;
 
             // Trening agenta
-            for (int time = 0; time < time_max; time++)
+            for (int episode = 0, step; episode < episodes; episode++)
             {
-                a1.reset(env1);
+                var watch = System.Diagnostics.Stopwatch.StartNew();
 
-                for (int i = 0; i <= r.Next(0,5); i++)
-                    env1.GenerateItem(new Jablko());
-        
-                for (int i = 0; i <= r.Next(0,5); i++)
-                    env1.GenerateItem(new Mina());
+                a.reset(env, testing: !training);
 
-                float score = 0;
-                for (int runningTime = 0; runningTime < 100; runningTime++)
+                is_end = 0;
+                score = 0;
+
+                for (step = 0; step < steps; step++)
                 {
-                    //Console.Clear();
+                    //if (training == false)
+                    //{
+                    //    Console.Clear();
+                    //    env.Vypis(a.currentPositionX, a.currentPositionY);
+                    //}
 
-                    //env1.Vypis(a1.currentPositionX, a1.currentPositionY);
-
-                    var odmena = a1.AktualizujAgenta(env1, true, epsilon);
+                    var odmena = a.AktualizujAgenta(env, training, epsilon);
                     score += odmena;
 
                     //Console.WriteLine($"\nTime epoch: {time}/{time_max}, runningTime: {runningTime}");
                     //Console.WriteLine($"Pocet naucenych stavov: {a1.PocetUlozenychStavov}\n");
 
                     // ukonci hru ak nasiel ciel
-                    if (env1.prostredie[a1.currentPositionY][a1.currentPositionX].id == Vychod.Tag)
+                    if (env.prostredie[a.currentPositionY][a.currentPositionX].id == Vychod.Tag)
+                    {
+                        is_end = 100;
                         break;
+                    }
 
                     //Thread.Sleep(10);   // ±100 FPS
                 }
 
+                watch.Stop();
+
                 if (epsilon >= 0.01f)
                     epsilon *= 0.999995f;
-
-                if (time % 1000 == 0)
+                
+                if ((episode % 100000) == 0)
                 {
-                    Console.WriteLine($"\nepsilon: {epsilon}, epoch: {time}/{time_max}");
-                    Console.WriteLine($"Pocet naucenych stavov: {a1.PocetUlozenychStavov}\n");
-
-                    file_train.WriteLine($"{score};{a1.PocetUlozenychStavov}");
+                    Console.WriteLine($"\nepsilon: {epsilon}, epoch: {episode}/{episodes}");
+                    Console.WriteLine($"Pocet naucenych stavov: {a.PocetUlozenychStavov}\n");
+                    Console.WriteLine($"apples: {a.apples}/{a.apple_count}, mines: {a.mines}/{a.mine_count}");
                 }
 
-                // Vymaz vsetky jablka a miny
-                env1.NahradObjekty(Jablko.Tag, new Cesta());
-                env1.NahradObjekty(Mina.Tag, new Cesta());
-            }
-
-            file_train.WriteLine($"\n");
-
-            // Trening agenta
-            for (int time = 0; time < 1000; time++)
-            {
-                a1.reset(env1);
-
-                for (int i = 0; i <= r.Next(0,5); i++)
-                    env1.GenerateItem(new Jablko());
-        
-                for (int i = 0; i <= r.Next(0,5); i++)
-                    env1.GenerateItem(new Mina());
-
-                float score = 0;
-                for (int runningTime = 0; runningTime < 100; runningTime++)
+                // log only testing phase
+                if (training == false)
                 {
-                    Console.Clear();
-
-                    Console.WriteLine("Testovanie agenta\n");
-
-                    env1.Vypis(a1.currentPositionX, a1.currentPositionY);
-
-                    var odmena = a1.AktualizujAgenta(env1, false, 0.0);
-                    score += odmena;
-
-                    Console.WriteLine($"reward: {odmena}, score: {score}");
-
-                    // ukonci hru ak nasiel ciel
-                    if (env1.prostredie[a1.currentPositionY][a1.currentPositionX].id == Vychod.Tag)
-                        break;
-
-                    Thread.Sleep(100);
+                    log_file.WriteLine($"{episode};{score};{step};{watch.Elapsed.TotalMilliseconds * 1000};{(a.apples/(float)a.apple_count)*100.0f};{(a.mines/(float)a.mine_count)*100.0f};{is_end}");
                 }
-
-                env1.Vypis(a1.currentPositionX, a1.currentPositionY);
-
-                // Vymaz vsetky jablka a miny
-                env1.NahradObjekty(Jablko.Tag, new Cesta());
-                env1.NahradObjekty(Mina.Tag, new Cesta());
-
-                //Console.WriteLine($"Time epoch: {time}\n");
-
-                Thread.Sleep(1500);
-
-                file_test.WriteLine($"{score}");
             }
-
-            file_train.Close();
-            file_test.Close();
         }
     }        
 }

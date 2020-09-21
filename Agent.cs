@@ -25,6 +25,12 @@ namespace QMazeExample
         }
         Random r = new Random((int)DateTime.Now.Ticks);
 
+        public int apples = 0;
+        public int apple_count = 0;
+
+        public int mines = 0;
+        public int mine_count = 0;
+
         AI.QLearning.Qlearning qBrain = new AI.QLearning.Qlearning();
 
         public AI.QLearning.QState stav = null;
@@ -102,12 +108,18 @@ namespace QMazeExample
             
             // Agent zobral jablko
             if (env.prostredie[currentPositionY][currentPositionX].id == Jablko.Tag)
+            {
                 env.prostredie[currentPositionY][currentPositionX] = new Cesta();
-                                                
+                this.apples += 1;
+            }
+
             // Agent aktivoval minu
             if (env.prostredie[currentPositionY][currentPositionX].id == Mina.Tag)
+            {
                 env.prostredie[currentPositionY][currentPositionX] = new Cesta();
-        
+                this.mines += 1;
+            }
+
             return odmena;
         }
 
@@ -194,12 +206,33 @@ namespace QMazeExample
             return true;
         }
 
-        public void reset(Prostredie env)
+        public void reset(Prostredie env, bool testing=false)
         {
             // Test agenta
-            var idx = r.Next(0, 3);
-            this.currentPositionX = Prostredie.startPositionX[idx]; 
-            this.currentPositionY = Prostredie.startPositionY[idx];
+            if (testing)
+            {
+                var idx = r.Next(0, 3);
+                this.currentPositionX = Prostredie.startPositionX_testing[idx]; 
+                this.currentPositionY = Prostredie.startPositionY_testing[idx];
+            }
+            else
+            {
+                var idx = r.Next(0, 3);
+                this.currentPositionX = Prostredie.startPositionX_training[idx]; 
+                this.currentPositionY = Prostredie.startPositionY_training[idx];                
+            }
+
+            // Vymaz vsetky jablka a miny
+            env.NahradObjekty(Jablko.Tag, new Cesta());
+            env.NahradObjekty(Mina.Tag, new Cesta());
+
+            apple_count = r.Next(2,5) + 1;
+            for (int i = 0; i < apple_count; i++)
+                env.GenerateItem(new Jablko());
+
+            mine_count = r.Next(0,3) + 1;
+            for (int i = 0; i < mine_count; i++)
+                env.GenerateItem(new Mina());
 
             stav = new AI.QLearning.QState 
             { 
@@ -207,6 +240,9 @@ namespace QMazeExample
                 PositionY = currentPositionY,
                 stateRadar = Radar(env)
             };
+
+            this.apples = 0;
+            this.mines = 0;
         }
 
         public bool sample(out int akcia)

@@ -7,7 +7,7 @@ namespace AI.QLearning
     public class Qlearning
     {
         private const float learning_rate = 0.5f;
-        private const float gamma = 0.99f;
+        private const float gamma = 0.95f;
         
         // Slovnik parov [stav;akcia], pociatocna kapacita 128 zaznamov
         public Dictionary<QState, float[]> Qtable { get; private set; } = new Dictionary<QState, float[]>(128);           

@@ -5,8 +5,13 @@ namespace QMazeExample
 { 
     public class Prostredie
     {
-        public static readonly int[] startPositionX = { 0, 9, 0 };  // Zacina v bode [0,1]
-        public static readonly int[] startPositionY = { 1, 1, 5 };   // Zacina v bode [0,1]
+        // trenovacie body
+        public static readonly int[] startPositionX_training = { 0, 9, 0 };
+        public static readonly int[] startPositionY_training = { 1, 1, 5 };
+
+        // testovacie body na overenie generalizacie agenta
+        public static readonly int[] startPositionX_testing = { 9, 6, 3 };
+        public static readonly int[] startPositionY_testing = { 4, 8, 0 };
 
         public int Height { get { return prostredie.Length; } }
         public int Width { get { return prostredie[0].Length; } }
@@ -39,21 +44,10 @@ namespace QMazeExample
         {
             int x, y;
 
-            /*if (prostredie[4][5].id == Cesta.Tag)
-            {
-                x = 5;
-                y = 4;
-            }
-            else if (prostredie[2][9].id == Cesta.Tag)
-            {
-                x = 9;
-                y = 2;
-            }
-            else*/
-                do {
-                    x = r.Next(1, Width-1);
-                    y = r.Next(1, Height-1);
-                } while (prostredie[y][x].id != Cesta.Tag);
+            do {
+                x = r.Next(1, Width-1);
+                y = r.Next(1, Height-1);
+            } while ((prostredie[y][x].id != Cesta.Tag) || ((x == 3 && y == 0) || (x == 9 && y == 4) || (x == 6 && y == 8) || (x == 8 && y >= 5) || (y == 1) || (y == 5) || (x == 5 && y >= 5)));
 
             // prepis novou polozkou sveta
             prostredie[y][x] = item;
@@ -64,13 +58,13 @@ namespace QMazeExample
             if (prostredie[y][x].id == Priepast.Tag)
                 return -0.75f;    // Smrt
             else if (prostredie[y][x].id == Jablko.Tag)
-                return +0.10f;     // Jablcko (odmena)
+                return +0.20f;     // Jablcko (odmena)
             else if (prostredie[y][x].id == Mina.Tag)
-                return -0.15f;     // Mina (trest)
+                return -0.20f;     // Mina (trest)
             else if (prostredie[y][x].id == Vychod.Tag)
-                return +1.0f;    // Dalsi level      
+                return +1.00f;    // Dalsi level      
             else
-                return -0.04f;   // Najkratsia cesta k vychodu
+                return -0.015f;   // Najkratsia cesta k vychodu
         }
 
         public void NahradObjekty(int tag, EnvItem item)
