@@ -13,10 +13,18 @@ namespace QMazeExample
             this.id = Tag;
         }
 
-        public override string ToString() 
+        public override string ToString(bool light=false) 
         {
-            Console.BackgroundColor = ConsoleColor.Red;
-            Console.ForegroundColor = ConsoleColor.Black;
+            if (!light)
+            {
+                Console.BackgroundColor = ConsoleColor.DarkRed;
+                Console.ForegroundColor = ConsoleColor.Black;
+            }
+            else
+            {
+                Console.BackgroundColor = ConsoleColor.Red;
+                Console.ForegroundColor = ConsoleColor.Black;                
+            }
             return base.ToString();
         }
     }

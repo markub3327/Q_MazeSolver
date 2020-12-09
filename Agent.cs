@@ -1,13 +1,13 @@
 
 using System;
+using System.IO;
 using System.Collections.Generic;
 
 namespace QMazeExample
 {
     public class Agent
     {
-        public int currentPositionX;  // Sucasna poloha agenta
-        public int currentPositionY;  // Sucasna poloha agenta
+        public Vector2 currentPos;
         public readonly int pocetAkcii = 4;
         public int PocetUlozenychStavov
         {
@@ -35,11 +35,26 @@ namespace QMazeExample
 
         public AI.QLearning.QState stav = null;
 
-        public float AktualizujAgenta(Prostredie env, bool ucenie, double eps)
+        private List<Vector2[]> testing_applesPos;
+        private List<Vector2[]> testing_minesPos;
+        private List<Vector2> testing_startsPos;
+
+        public Agent()
+        {
+            testing_applesPos = this.readCollectiblesFile(@"log_apples.txt");
+            testing_minesPos = this.readCollectiblesFile(@"log_mines.txt");
+            testing_startsPos = this.readStartFile(@"log_start.txt");
+        }
+
+        public void clearMem()
+        {
+            this.qBrain.Qtable.Clear();
+        }
+
+        public bool AktualizujAgenta(Prostredie env, bool ucenie, double eps, out float odmena)
         {
             bool isValid;
             int akcia;
-            float odmena;
 
             // Vyber akciu
             var akcia_max = qBrain.NajdiMaxAkciu(stav);
@@ -72,7 +87,7 @@ namespace QMazeExample
             //Console.WriteLine();
 
             if (isValid)
-                odmena = env.Hodnotenie(currentPositionX, currentPositionY);
+                odmena = env.Hodnotenie(currentPos.x, currentPos.y);
             else
                 odmena = -1.0f;
 
@@ -81,8 +96,8 @@ namespace QMazeExample
             /****************************************************/
             var novyStav = new AI.QLearning.QState 
             { 
-                PositionX = currentPositionX,
-                PositionY = currentPositionY,
+                PositionX = currentPos.x,
+                PositionY = currentPos.y,
                 stateRadar = Radar(env)
             };
 
@@ -107,20 +122,20 @@ namespace QMazeExample
             this.stav = novyStav;
             
             // Agent zobral jablko
-            if (env.prostredie[currentPositionY][currentPositionX].id == Jablko.Tag)
+            if (env.prostredie[currentPos.y][currentPos.x].id == Jablko.Tag)
             {
-                env.prostredie[currentPositionY][currentPositionX] = new Cesta();
+                env.prostredie[currentPos.y][currentPos.x] = new Cesta();
                 this.apples += 1;
             }
 
             // Agent aktivoval minu
-            if (env.prostredie[currentPositionY][currentPositionX].id == Mina.Tag)
+            if (env.prostredie[currentPos.y][currentPos.x].id == Mina.Tag)
             {
-                env.prostredie[currentPositionY][currentPositionX] = new Cesta();
+                env.prostredie[currentPos.y][currentPos.x] = new Cesta();
                 this.mines += 1;
             }
 
-            return odmena;
+            return isValid;
         }
 
         private int[] Radar(Prostredie env)
@@ -128,69 +143,69 @@ namespace QMazeExample
             int[] scan = new int[8];
 
             // Hore
-            if (!JeMimoAreny(currentPositionX, currentPositionY-1, 10, 10))
-                scan[0] = env.prostredie[currentPositionY-1][currentPositionX].id;
+            if (!JeMimoAreny(currentPos.x, currentPos.y-1, 10, 10))
+                scan[0] = env.prostredie[currentPos.y-1][currentPos.x].id;
 
             // Vpravo-Hore
-            if (!JeMimoAreny(currentPositionX+1, currentPositionY-1, 10, 10))
-                scan[1] = env.prostredie[currentPositionY-1][currentPositionX+1].id;
+            if (!JeMimoAreny(currentPos.x+1, currentPos.y-1, 10, 10))
+                scan[1] = env.prostredie[currentPos.y-1][currentPos.x+1].id;
 
             // Vpravo
-            if (!JeMimoAreny(currentPositionX+1, currentPositionY, 10, 10))
-                scan[2] = env.prostredie[currentPositionY][currentPositionX+1].id;
+            if (!JeMimoAreny(currentPos.x+1, currentPos.y, 10, 10))
+                scan[2] = env.prostredie[currentPos.y][currentPos.x+1].id;
 
             // Vpravo-Dole
-            if (!JeMimoAreny(currentPositionX+1, currentPositionY+1, 10, 10))
-                scan[3] = env.prostredie[currentPositionY+1][currentPositionX+1].id;
+            if (!JeMimoAreny(currentPos.x+1, currentPos.y+1, 10, 10))
+                scan[3] = env.prostredie[currentPos.y+1][currentPos.x+1].id;
 
             // Dole
-            if (!JeMimoAreny(currentPositionX, currentPositionY+1, 10, 10))
-                scan[4] = env.prostredie[currentPositionY+1][currentPositionX].id;
+            if (!JeMimoAreny(currentPos.x, currentPos.y+1, 10, 10))
+                scan[4] = env.prostredie[currentPos.y+1][currentPos.x].id;
 
             // Vlavo-Dole
-            if (!JeMimoAreny(currentPositionX-1, currentPositionY+1, 10, 10))
-                scan[5] = env.prostredie[currentPositionY+1][currentPositionX-1].id;
+            if (!JeMimoAreny(currentPos.x-1, currentPos.y+1, 10, 10))
+                scan[5] = env.prostredie[currentPos.y+1][currentPos.x-1].id;
 
             // Vlavo
-            if (!JeMimoAreny(currentPositionX-1, currentPositionY, 10, 10))
-                scan[6] = env.prostredie[currentPositionY][currentPositionX-1].id;
+            if (!JeMimoAreny(currentPos.x-1, currentPos.y, 10, 10))
+                scan[6] = env.prostredie[currentPos.y][currentPos.x-1].id;
 
             // Vlavo-Hore
-            if (!JeMimoAreny(currentPositionX-1, currentPositionY-1, 10, 10))
-                scan[7] = env.prostredie[currentPositionY-1][currentPositionX-1].id;
+            if (!JeMimoAreny(currentPos.x-1, currentPos.y-1, 10, 10))
+                scan[7] = env.prostredie[currentPos.y-1][currentPos.x-1].id;
 
             return scan;
         }
 
         private bool Pohyb(EAkcie akcia, int maxW, int maxH)
         {
-            var oldX = currentPositionX;
-            var oldY = currentPositionY;
+            var oldX = currentPos.x;
+            var oldY = currentPos.y;
 
             switch (akcia)
             {
                 case EAkcie.Hore:
                     //currentPosition[0] += 0;
-                    currentPositionY += 1;
+                    currentPos.y += 1;
                     break;
                 case EAkcie.Dole:
                     //currentPosition[0] += 0;
-                    currentPositionY -= 1;
+                    currentPos.y -= 1;
                     break;
                 case EAkcie.Vlavo:
-                    currentPositionX -= 1;
+                    currentPos.x -= 1;
                     //currentPosition[1] += 0;
                     break;
                 case EAkcie.Vpravo:
-                    currentPositionX += 1;
+                    currentPos.x += 1;
                     //currentPosition[1] += 0;
                     break;
             }
 
-            if (JeMimoAreny(currentPositionX, currentPositionY, 10, 10))
+            if (JeMimoAreny(currentPos.x, currentPos.y, 10, 10))
             {
-                currentPositionX = oldX;
-                currentPositionY = oldY;   
+                currentPos.x = oldX;
+                currentPos.y = oldY;   
 
                 return false;
             }
@@ -206,38 +221,83 @@ namespace QMazeExample
             return true;
         }
 
-        public void reset(Prostredie env, bool testing=false)
+        private List<Vector2[]> readCollectiblesFile(string path)
         {
-            // Test agenta
-            if (testing)
-            {
-                var idx = r.Next(0, 3);
-                this.currentPositionX = Prostredie.startPositionX_testing[idx]; 
-                this.currentPositionY = Prostredie.startPositionY_testing[idx];
-            }
-            else
-            {
-                var idx = r.Next(0, 3);
-                this.currentPositionX = Prostredie.startPositionX_training[idx]; 
-                this.currentPositionY = Prostredie.startPositionY_training[idx];                
-            }
+            StreamReader log_apples = new StreamReader(path);
+            List<Vector2[]> list = new List<Vector2[]>();
+            string line;
+            int i = 0;
 
+            while((line = log_apples.ReadLine()) != null) 
+            {
+                var str = line.Split('|');
+
+                list.Add(new Vector2[str.Length - 1]);
+
+                for (int j = 0; j < str.Length - 1; j++)
+                {    
+                    var str2 = str[j].Split(';');
+                    list[i][j] = new Vector2(int.Parse(str2[0]), int.Parse(str2[1]));
+                }
+
+                i += 1;
+            }
+            //Console.WriteLine($"{list.Count}");
+            //Console.WriteLine($"{list[3].Length}");
+
+            return list;
+        }
+
+        private List<Vector2> readStartFile(string path)
+        {
+            StreamReader log_starts = new StreamReader(path);
+            List<Vector2> list = new List<Vector2>();
+            string line;
+
+            while((line = log_starts.ReadLine()) != null) 
+            {
+                var str = line.Split(';');
+                list.Add(new Vector2(int.Parse(str[0]), int.Parse(str[1])));
+            }
+            //Console.WriteLine($"{list.Count}");
+
+            return list;
+        }
+
+        public void reset(Prostredie env, int t = 0, bool training = true)
+        {
             // Vymaz vsetky jablka a miny
             env.NahradObjekty(Jablko.Tag, new Cesta());
             env.NahradObjekty(Mina.Tag, new Cesta());
 
-            apple_count = r.Next(2,5) + 1;
-            for (int i = 0; i < apple_count; i++)
-                env.GenerateItem(new Jablko());
+            if (training == true)
+            {
+                var idx = r.Next(0, 3);
+                this.currentPos = new Vector2(Prostredie.startPositionX_training[idx], Prostredie.startPositionY_training[idx]);                
 
-            mine_count = r.Next(0,3) + 1;
-            for (int i = 0; i < mine_count; i++)
-                env.GenerateItem(new Mina());
+                apple_count = r.Next(2, 5) + 1;
+                for (int i = 0; i < apple_count; i++)
+                    env.GenerateItem(new Jablko());
+
+                mine_count = r.Next(0, 3) + 1;
+                for (int i = 0; i < mine_count; i++)
+                    env.GenerateItem(new Mina());
+            }
+            else
+            {
+                this.currentPos = new Vector2(this.testing_startsPos[t].x, this.testing_startsPos[t].y);
+
+                for (int i = 0; i < this.testing_applesPos[t].Length; i++)
+                    env.prostredie[this.testing_applesPos[t][i].y][this.testing_applesPos[t][i].x] = new Jablko();
+    
+                for (int i = 0; i < this.testing_minesPos[t].Length; i++)
+                    env.prostredie[this.testing_minesPos[t][i].y][this.testing_minesPos[t][i].x] = new Mina();
+            }
 
             stav = new AI.QLearning.QState 
             { 
-                PositionX = currentPositionX,
-                PositionY = currentPositionY,
+                PositionX = currentPos.x,
+                PositionY = currentPos.y,
                 stateRadar = Radar(env)
             };
 
