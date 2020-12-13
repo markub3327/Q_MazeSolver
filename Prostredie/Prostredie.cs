@@ -53,7 +53,7 @@ namespace QMazeExample
             prostredie[y][x] = item;
         }
 
-        public float[] rewards = new float[] { -0.55f, +0.80f, -0.85f, -0.15f };
+        public float[] rewards = new float[] { -0.55f, +0.83f, -0.85f, -0.17f };
         private float[] rewards_best;
 
         // Author: Arduino.cc (https://www.arduino.cc/reference/en/language/functions/math/map/)
