@@ -9,10 +9,6 @@ namespace QMazeExample
         public static readonly int[] startPositionX_training = { 0, 9, 0 };
         public static readonly int[] startPositionY_training = { 1, 1, 5 };
 
-        // testovacie body na overenie generalizacie agenta
-        //public static readonly int[] startPositionX_testing = { 9, 6, 3 };
-        //public static readonly int[] startPositionY_testing = { 4, 8, 0 };
-
         public int Height { get { return prostredie.Length; } }
         public int Width { get { return prostredie[0].Length; } }
         public EnvItem[][] prostredie { get; private set; }
