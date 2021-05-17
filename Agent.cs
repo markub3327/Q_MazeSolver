@@ -43,7 +43,7 @@ namespace QMazeExample
         {
             testing_applesPos = this.readCollectiblesFile(@"log_apples.txt");
             testing_minesPos = this.readCollectiblesFile(@"log_mines.txt");
-            testing_startsPos = this.readStartFile(@"log_start.txt");
+            testing_startsPos = this.readStartFile(@"log_start_test.txt");
         }
 
         public void clearMem()
