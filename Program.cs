@@ -8,7 +8,14 @@ namespace QMazeExample
     class Program
     {
         private static StreamWriter log_file = new StreamWriter(@"statistics.txt");
-
+        
+        // Parametre prostredia
+        private static int episodes_train = 5000;
+        private static int episodes_test = 20;
+        private static int max_steps = 100;
+        private static float epsilon_decay = 0.999f;
+        
+        // Definicia bludiska
         private static Prostredie env1 = new Prostredie(new int[][] 
         { 
             new int[] { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
@@ -119,15 +126,15 @@ namespace QMazeExample
             a1.clearMem();
 
             // Faza ucenia
-            run(env1, a1, 5000, training: true);
+            run(env1, a1, episodes_train, max_steps, training: true);
 
             // Faza testovania
-            run(env1, a1, 20, training: false);
+            run(env1, a1, episodes_test, max_steps, training: false);
 
             log_file.Close();
         }
 
-        private static Statistics run(Prostredie env, Agent a, int episodes=1000, int steps=100, bool training=true)
+        private static Statistics run(Prostredie env, Agent a, int episodes, int steps, bool training=true)
         {
             Statistics stat = new Statistics();
             var epsilon = training == true ? 1.0f : 0.0f;
@@ -171,7 +178,7 @@ namespace QMazeExample
                 watch.Stop();
 
                 if (epsilon >= 0.01f)
-                    epsilon *= 0.999f;
+                    epsilon *= epsilon_decay;
                 
                 /*if ((episode % 1000) == 0)
                 {
