@@ -73,7 +73,6 @@ namespace QMazeExample
                     akcia = akcia_max.Value;
                     isValid = Pohyb((EAkcie)akcia, 10, 10);
                 }
-                //Console.WriteLine($"Qvalue[{akcia.Value}]: {qBrain.Qtable[stav][akcia.Value]}");
             }
             // Ak neexistuje este vedomost
             else
@@ -82,9 +81,6 @@ namespace QMazeExample
                 // ... vytvor zaznam o najdenom stave
                 qBrain.Qtable.Add(stav, new float[] {0f,0f,0f,0f});
             }            
-            //Console.WriteLine($"Stav: {stav}");
-            //Console.WriteLine($"Akcia: {((EAkcie)akcia).ToString()}, {akcia}");
-            //Console.WriteLine();
 
             if (isValid)
                 odmena = env.Hodnotenie(currentPos.x, currentPos.y);
@@ -106,14 +102,10 @@ namespace QMazeExample
                 var buducaAkcia = qBrain.NajdiMaxAkciu(novyStav);
                 var buducaQhodnota = 0f;
 
-                //Console.WriteLine($"Odmena: {odmena}");
-                //Console.WriteLine($"novyStav: {novyStav}");
-
                 // Aktualizuj Qtable hodnotu pre [s;a]
                 if (buducaAkcia != null)
                 {           
                     buducaQhodnota = qBrain.Qtable[novyStav][buducaAkcia.Value];
-                    //Console.WriteLine($"buducaQvalue[{buducaAkcia}]: {buducaQhodnota}");
                 }
 
                 qBrain.Aktualizuj(stav, akcia, odmena, buducaQhodnota);             
